@@ -66,3 +66,12 @@ class OrderVehicle(models.Model):
         #     price_total = price_total + v.car_price
         # return price_total
         return self.vehicle.car_price * self.number_of_Vehicles
+
+
+class Description(models.Model):
+    title = models.CharField(max_length=100)
+    project = models.TextField(max_length=500, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
