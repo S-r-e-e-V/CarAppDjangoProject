@@ -75,3 +75,16 @@ class Description(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class LabGroupMember(models.Model):
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    semester = models.IntegerField()
+    url = models.URLField()
+
+    class Meta:
+        ordering = ['first_name']
+
+    def __str__(self):
+        return f"{self.first_name} {self.last_name}"

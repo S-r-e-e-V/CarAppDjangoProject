@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title> Car Site </title>
+</head>
+<body>
+{% if cartype_list %}
+    <h2> Type of Cars </h2>
+    <ol>
+        {% for cartype in cartype_list %}
+            <li> {{ cartype.name }} </li>
+        {% endfor %}
+    </ol>
+{% else %}
+    <strong> None of the car types is available! </strong>
+{% endif %}
+<p><a href={% url "aboutus" %}>About Page</a></p>
+</body>
+</html>
