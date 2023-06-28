@@ -35,12 +35,12 @@ def cardetail(request, cartype_no):
     car_type = get_object_or_404(CarType, id=cartype_no)
     vehicles = Vehicle.objects.filter(car_type=car_type)
     response = HttpResponse()
-    para = '<p>' + "Car type: " + str(car_type.name) + '<p> Vehicles: <br>'
-    response.write(para)
-    for vehicle in vehicles:
-        para = '<p>' + str(vehicle.car_name) + '</p>'
-        response.write(para)
-    return response
+    # para = '<p>' + "Car type: " + str(car_type.name) + '<p> Vehicles: <br>'
+    # response.write(para)
+    # for vehicle in vehicles:
+    #     para = '<p>' + str(vehicle.car_name) + '</p>'
+    #     response.write(para)
+    return render(request, 'carapp/cardetail.html', {'vehicles_list': vehicles})
 
 
 def lab_group_members(request):
