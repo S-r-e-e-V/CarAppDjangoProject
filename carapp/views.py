@@ -59,7 +59,8 @@ def lab_group_members(request):
 class LabGroupMembersView(ListView):
     """
     Class Based View (CBV) to display lab group members details ordered by first name, path='lab-group/'
-    Compared to the Function Based View (FBV) the CBV inherits the properties of ListView and the method get_context_data() is used to get all the details.
+    Compared to the Function Based View (FBV) the CBV inherits the properties of ListView and the method
+    get_context_data() is used to get all the details.
     By using the ListView class, the CBV handles fetching the queryset of LabGroupMember objects from the database automatically.
     It also provides pagination functionality if needed. The context data, including the list of lab group members,
     is made available in the template using the specified context_object_name.
@@ -70,3 +71,14 @@ class LabGroupMembersView(ListView):
     def get_context_data(self, **kwargs):
         members = super().get_context_data(**kwargs)
         return members
+
+def vehicles(request):
+    """ functions to display vehicles """
+    vehicles_list = Vehicle.objects.all()
+    if len(vehicles_list) != 0 or vehicles_list is not None:
+        return render(request, "carapp/vehicles.html", {"vehicles_list": vehicles_list})
+    return render(request, "carapp/vehicles.html")
+
+def orderhere(request):
+    """ function to place an order """
+    return HttpResponse("You can place your order here.")

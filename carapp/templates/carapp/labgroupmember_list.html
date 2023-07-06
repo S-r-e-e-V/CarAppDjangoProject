@@ -1,13 +1,20 @@
-<h1>Lab Group Members Details</h1>
-<ul>
-{% for member in object_list %}
-    <li>
-        First Name: {{ member.first_name }} {{ member.last_name }},
-        Last Name: {{ member.last_name }},
-        Semester: {{ member.semester}},
-        personal_profile: {{ member.url }}
-    </li>
-{% empty %}
-    <li>No members yet.</li>
-{% endfor %}
-</ul>
+﻿<!DOCTYPE html>
+<html>
+<head></head>
+<body>
+    <h1>Lab Group Members Details</h1>
+    <p><a href="{% url 'carapp:homepage' %}">Home Page</a></p>
+    <ul>
+        {% for member in object_list %}
+            <li>
+                First Name: {{ member.first_name }} {{ member.last_name }},
+                Last Name: {{ member.last_name }},
+                Semester: {{ member.semester }},
+                personal_profile: {{ member.url }}
+            </li>
+        {% empty %}
+            <li>No members yet.</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

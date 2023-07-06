@@ -1,12 +1,13 @@
-﻿{% extends 'carapp/base.html' %}
+{% extends 'carapp/base.html' %}
+
 {% block body_block %}
+    <h2> Vehicles List </h2>
     {% if vehicles_list %}
-        <h2> Type of Cars </h2>
-        <ul>
+        <ol>
             {% for vehicle in vehicles_list %}
                 <li> {{ vehicle.car_name }} </li>
             {% endfor %}
-        </ul>
+        </ol>
     {% else %}
         <strong> None of the car types is available! </strong>
     {% endif %}
