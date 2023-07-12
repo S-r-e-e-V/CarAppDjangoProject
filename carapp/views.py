@@ -1,8 +1,10 @@
 import json
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
-from .models import OrderVehicle, Vehicle, CarType, LabGroupMember
+from .models import OrderVehicle, Vehicle, CarType, LabGroupMember, Buyer, User
 from django.views.generic.list import ListView
+from .forms import OrderVehicleForm
+from datetime import date
 
 
 def homepage(request):
@@ -80,5 +82,41 @@ def vehicles(request):
     return render(request, "carapp/vehicles.html")
 
 def orderhere(request):
-    """ function to place an order """
-    return HttpResponse("You can place your order here.")
+    msg = ''
+    vehiclelist = Vehicle.objects.all()
+    if request.method == 'POST':
+        form = OrderVehicleForm(request.POST)
+        if form.is_valid():
+            order = form.save(commit=False)
+            vehicle = Vehicle.objects.get(car_name = order.vehicle)
+            if order.number_of_Vehicles <= vehicle.inventory:
+                buyer_id = User.objects.get(first_name = order.buyer).id
+                orders = OrderVehicle(number_of_Vehicles = order.number_of_Vehicles,
+                                      status = 1,
+                                      order_date = date.today(),
+                                      buyer_id = buyer_id,
+                                      vehicle_id = vehicle.id)
+                orders.save()
+
+                vehicle.inventory -= order.number_of_Vehicles
+                if vehicle.inventory == 0:
+                    vehicle.instock = 0
+                vehicle.save()
+                msg = 'Your vehicle has been ordered'
+                return HttpResponse(msg)
+            else:
+                msg = 'We do not have sufficient stock to fill your order.'
+                return render(request, 'carapp/nosuccess_order.html', {'msg': msg})
+    else:
+        form = OrderVehicleForm()
+        return render(request, 'carapp/orderhere.html', {'form': form, 'msg': msg, 'vehicles_list':vehiclelist})
+
+def filter_price(request):
+    if request.method == 'POST':
+        vehicle_name = request.POST.get('vehicle')
+        vehicle = get_object_or_404(Vehicle, car_name=vehicle_name)
+        response = vehicle.car_price
+        return render(request, 'carapp/carprice.html', {'price': response ,'vehicles': Vehicle.objects.all(),'selected_vehicle': vehicle})
+    else:
+        return render(request, 'carapp/carprice.html', {'vehicles': Vehicle.objects.all()})
+
