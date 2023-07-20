@@ -15,7 +15,6 @@ class OrderVehicleForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['buyer'].widget.attrs['size'] = 1
 
-
 class ContactForm(forms.Form):
     """ form to contact the lab group """
     name = forms.CharField(max_length=100)

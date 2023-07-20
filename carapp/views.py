@@ -1,10 +1,13 @@
 import json
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from .models import OrderVehicle, Vehicle, CarType, LabGroupMember, Buyer, User
 from django.views.generic.list import ListView
 from .forms import OrderVehicleForm
 from datetime import date
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.urls import reverse
 
 
 def homepage(request):
@@ -28,8 +31,21 @@ def homepage(request):
 
 def aboutus(request):
     """ path='aboutus' """
-    # return HttpResponse("This is a Car Showroom.")
-    return render(request, 'carapp/aboutus.html', {'message': "This is a Car Showroom"})
+    session_visit_count = request.session.get('aboutus_visits', 0)
+    request.session['aboutus_visits'] = session_visit_count + 1
+    message = "This is a Car Showroom. Session count for this page = " + str(session_visit_count)
+    # request.session.flush()
+    response = render(request, 'carapp/aboutus.html', {'message': message})
+
+    # Cookies
+    print(request.COOKIES)
+    if 'cookie_counter' in request.COOKIES:
+        print("Cookie is set.")
+    else:
+        print("Setting a cookie")
+        # setting a cookie named 'cookie_counter' with value '10' that expires in 10 seconds
+        response.set_cookie('cookie_counter', '10', max_age=10)
+    return response
 
 
 def cardetail(request, cartype_no):
@@ -109,7 +125,7 @@ def orderhere(request):
                 return render(request, 'carapp/nosuccess_order.html', {'msg': msg})
     else:
         form = OrderVehicleForm()
-        return render(request, 'carapp/orderhere.html', {'form': form, 'msg': msg, 'vehicles_list':vehiclelist})
+        return render(request, 'carapp/orderhere.html', {'form': form, 'msg': msg, 'vehicles_list': vehiclelist})
 
 def filter_price(request):
     if request.method == 'POST':
@@ -119,4 +135,54 @@ def filter_price(request):
         return render(request, 'carapp/carprice.html', {'price': response ,'vehicles': Vehicle.objects.all(),'selected_vehicle': vehicle})
     else:
         return render(request, 'carapp/carprice.html', {'vehicles': Vehicle.objects.all()})
+
+def login_here(request):
+    """ path = 'login """
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        print(username, password)
+        user = authenticate(username=username, password=password)
+        if user:
+            if user.is_active:
+                login(request, user)
+                return HttpResponseRedirect(reverse('carapp:homepage'))
+            else:
+                return HttpResponse('Your account is disabled')
+        else:
+            return HttpResponse('Login details are incorrect')
+    else:
+        return render(request, 'carapp/login_here.html')
+
+@login_required
+def logout_here(request):
+    """ path='logout' """
+    logout(request)
+    return HttpResponseRedirect(reverse('carapp:homepage'))
+
+@login_required
+def list_of_orders(request):
+    """ path = 'orders' """
+    user = request.user
+    template = "carapp/list_of_orders.html"
+    # Check if the user is a buyer
+    users = User.objects.filter(id=user.id)
+    # condition when user is not valid
+    if users is not None and len(users) != 0:
+        user = users[0]
+        buyers = Buyer.objects.filter(pk=user.id)
+        # condition when there are no buyers with this user details
+        if len(buyers) == 0:
+            message = 'You are not registered'
+            return render(request, template, {'message': message})
+        buyer = buyers[0]
+        orders = OrderVehicle.objects.filter(buyer=buyer)
+        if len(orders) == 0:
+            message = "No orders placed yet."
+            return render(request, template, {'message': message})
+        return render(request, template, {'orders': orders})
+    else:
+        message = 'You are not registered'
+        return render(request, template, {'message': message})
+
 

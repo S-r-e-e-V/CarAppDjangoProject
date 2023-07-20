@@ -1,5 +1,6 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, make_password
+
 
 # Create your models here.
 class CarType(models.Model):
@@ -7,6 +8,7 @@ class CarType(models.Model):
 
     def __str__(self):
         return self.name
+
 
 class Vehicle(models.Model):
     CRUISE_CONTROL = 'Cruise Control'
@@ -60,6 +62,12 @@ class Buyer(User):
 
     def __str__(self):
         return self.first_name
+
+    def save(self, *args, **kwargs):
+        # Before saving the instance, hash the password if it's not already hashed
+        if not self.password.startswith('pbkdf2_sha256$'):
+            self.password = make_password(self.password)
+        super().save(*args, **kwargs)
 
 
 class OrderVehicle(models.Model):
